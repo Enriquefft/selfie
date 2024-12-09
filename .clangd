@@ -1,0 +1,72 @@
+CompileFlags:
+  Add:
+    - "-Weverything"
+Diagnostics:
+  ClangTidy:
+    Add: [
+        bugprone*
+        cert*
+        clang-analyzer*
+        concurrency*
+        cppcoreguidelines*
+        google*
+        hicpp*
+        misc*
+        modernize*
+        performance*
+        readability*
+        -google-objc*,
+      ]
+    Remove: [
+        modernize-use-trailing-return-type,
+        google-build-using-namespace,
+        readability-isolate-declaration,
+        readability-identifier-length,
+        performance-avoid-endl, # maybe? idk
+        readability-magic-numbers,
+
+        cert-dcl21-cpp, # deprecated
+
+        # Redundant aliases
+        hicpp-avoid-c-arrays,
+        cppcoreguidelines-avoid-c-arrays,
+        cppcoreguidelines-avoid-magic-numbers,
+      ]
+    CheckOptions:
+      misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables: 1
+      readability-identifier-naming.ParameterIgnoredRegexp: ^_.*$
+      readability-identifier-naming.ClassCase: CamelCase
+      readability-identifier-naming.ConstantCase: UPPER_CASE
+      readability-identifier-naming.FunctionCase: lower_case
+      readability-identifier-naming.MethodCase: lower_case
+      readability-identifier-naming.ParameterCase: lower_case
+      readability-identifier-naming.PrivateMemberPrefix: m_
+  UnusedIncludes: None
+
+---
+# Fragment specific to C++ source files
+If:
+  PathMatch: [.*\.cpp, .*\.hpp]
+CompileFlags:
+  Add:
+    - "-std=c++20"
+    - "-fsanitize=address"
+    - "-fsanitize=undefined"
+    - "-fdiagnostics-show-option"
+    - "-fsanitize-address-use-after-scope"
+    # - "-fsanitize=thread" # Not allowed with fsanitize=address
+    - "--analyze"
+    # Disable unwanted warnings.
+    - "-Wno-c++98-compat"
+    - "-Wno-c++98-compat-pedantic"
+    - "-Wno-zero-as-null-pointer-constant"
+    - "-Wno-c++20-compat"
+    - "-Wno-vla-extension"
+---
+If:
+    PathMatch: [.*\.c, .*\.h]
+CompileFlags:
+    Add:
+        - "-xc"
+        - -std=c2x
+        - -Duint64_t=unsigned long
